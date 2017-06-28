@@ -1,0 +1,22 @@
+version: 2
+machine:
+  node:
+    version: 6
+jobs:
+  build:
+    working_directory: ~/code
+    docker:
+      - image: circleci/android:api-25-alpha
+    environment:
+      JVM_OPTS: -Xmx3200m
+    steps:
+      - checkout
+      - run:
+          name: Download Dependencies
+          command: npm install -g gulp && npm install -g mocha
+      - run:
+          name: Transpile
+          command: gulp transpile
+      - run:
+          name: Run Tests
+          command: mocha -t 90000 -R spec --recursive build/test/functional
