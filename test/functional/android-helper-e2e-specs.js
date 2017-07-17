@@ -30,7 +30,9 @@ describe('android-helpers e2e', () => {
       });
       await adb.isAppInstalled(opts.appPackage).should.eventually.be.false;
       await helpers.installApkRemotely(adb, opts);
-      await adb.isAppInstalled(opts.appPackage).should.eventually.be.true;
+      await retryInterval(10, 1000, async function () {
+        await adb.isAppInstalled(opts.appPackage).should.eventually.be.true;
+      });
     });
   });
   describe('ensureDeviceLocale', () => {
