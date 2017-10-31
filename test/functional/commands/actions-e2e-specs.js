@@ -10,6 +10,8 @@ chai.use(chaiAsPromised);
 
 const PNG_MAGIC = '89504e47';
 const PNG_MAGIC_LENGTH = 4;
+const DATE_WIDGET_ACTIVITY = '.view.DateWidgets1';
+const CUSTOM_PICKER_ACTIVITY ='.view.CustomPicker1';
 
 let driver;
 let caps = _.defaults({
@@ -36,6 +38,37 @@ describe('actions', () => {
 
       await driver.replaceValue('replaced value', el.ELEMENT);
       await driver.getText(el.ELEMENT).should.eventually.equal('replaced value');
+    });
+    it('should be able to set text in time picker', async () => {
+      await driver.startActivity(caps.appPackage, DATE_WIDGET_ACTIVITY);
+      let dialogButton = await driver.findElOrEls('id', 'io.appium.android.apis:id/pickTimeSpinner', false);
+      await driver.click(dialogButton.ELEMENT);
+
+      let hours = await driver.findElOrEls('xpath', '//android.widget.NumberPicker[1]//android.widget.EditText', false);
+      await driver.replaceValue('9', hours.ELEMENT);
+
+      let minutes = await driver.findElOrEls('xpath', '//android.widget.NumberPicker[2]//android.widget.EditText', false);
+      await driver.replaceValue('59', minutes.ELEMENT);
+
+      let pm = await driver.findElOrEls('xpath', '//*[@text="PM"]', false);
+      await driver.touchLongClick(pm.ELEMENT);
+
+      let okButton = await driver.findElOrEls('xpath', '//*[@text="OK"]', false);
+      await driver.click(okButton.ELEMENT);
+
+      let date = await driver.findElOrEls('id', 'io.appium.android.apis:id/dateDisplay', false);
+      await driver.getText(date.ELEMENT).should.eventually.contains('21:59');
+    });
+    it('should be able to set text in picker with custom displayed values', async () => {
+      await driver.startActivity(caps.appPackage, CUSTOM_PICKER_ACTIVITY);
+      let customPicker = await driver.findElOrEls('xpath', '//android.widget.NumberPicker//android.widget.EditText', false);
+
+      await driver.replaceValue('kupima', customPicker.ELEMENT);
+      // Force get focus event
+      await driver.click(customPicker.ELEMENT);
+
+      let textView = await driver.findElOrEls('id', 'io.appium.android.apis:id/textView1', false);
+      await driver.getText(textView.ELEMENT).should.eventually.contains('kupima');
     });
   });
 
